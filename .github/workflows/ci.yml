@@ -1,0 +1,16 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check-required-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required docs exist and are non-empty
+        run: |
+          missing=0
+          for f in docs/requirements.md docs/design.md docs/risks.md README.md CONTRIBUTING.md AGENTS.md; do
+            if [ ! -s "$f" ]; then echo "Missing or empty: $f"; missing=1; fi
+          done
+          exit $missing
