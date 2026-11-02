@@ -1,0 +1,47 @@
+#Unreal generated folder
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+
+#VisualStudio generated files
+.vs/
+*.sln
+*.suo
+*.VC.db
+*.VC.opendb
+*.opensdf
+*.sdf
+*.user
+*.userprefs
+*.userosscache
+*.sln.docstates
+
+#Unreal generated project files
+*.xcodeproj/
+*.xcxworkspace/
+
+#Operating System Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+#Plugin-generated files
+Plugins/**/Intermediate/
+Plugins/**/Binaries/
+
+#Generated map lighting data
+*_BuiltData.uasset
+
+# Other generated files
+*.log
+*.bak
+*.tmp
+
+# Personal user settings
+.vscode/
+.idea/
+
+# Personal backup files
+*.bak
+*.tmp
