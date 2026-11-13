@@ -5,6 +5,7 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 #include "InputCoreTypes.h"
+#include "UObject/ConstructorHelpers.h"
 
 // Sets default values
 ATargetActor::ATargetActor()
@@ -21,6 +22,21 @@ ATargetActor::ATargetActor()
 	TargetMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	TargetMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+	UStaticMesh* LoadedMesh = LoadObject<UStaticMesh>(
+		nullptr,
+		TEXT("/Game/Target.Target")
+	);
+
+	if (LoadedMesh)
+	{
+		TargetMesh->SetStaticMesh(LoadedMesh);
+		UE_LOG(LogTemp, Warning, TEXT("Mesh loaded: %s"), *LoadedMesh->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadObject failed to find Target!"));
+	}
 }
 
 
@@ -69,16 +85,40 @@ void ATargetActor::Tick(float DeltaTime)
 	{
 		return;
 	}
-
-	if (GetWorldTimerManager().IsTimerActive(ReturnTimerHandle)) {
-		return;
+	if (bInit) {
+		float eTime = GetWorld()->GetTimeSeconds() - StartTime;
+		float NewY = StartPosition.Y;
+		float NewZ = StartPosition.Z;
+		switch (MovementPattern) {
+		case ETargetMovementPattern::HorizontalWave:
+			NewY += (PrimarySpeed * eTime);
+			NewZ += (SecondaryStrength * FMath::Sin(SecondaryFrequency * eTime));
+			break;
+		case ETargetMovementPattern::DescendingCurve:
+			NewY += (PrimarySpeed * eTime * eTime);
+			NewZ += -(SecondaryStrength * eTime);
+			break;
+		}
+		FVector NewLocation(StartPosition.X, NewY, NewZ);
+		if (NewY >= MaxY || NewY <= MinY) {
+			Destroy();
+			return;
+		}
+		SetActorLocation(NewLocation);
 	}
+	else {
+		//helps if the targets in the level aren't broken
+		//idk why im attached to them
+		if (GetWorldTimerManager().IsTimerActive(ReturnTimerHandle)) {
+			return;
+		}
 
-	FVector Target = bReturning ? StartLocation : EndLocation;
-	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 100.0f));
+		FVector Target = bReturning ? StartLocation : EndLocation;
+		SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 100.0f));
 
-	if (GetActorLocation().Equals(Target, 1.0f)) {
-		GetWorldTimerManager().SetTimer(ReturnTimerHandle, this, &ATargetActor::SwitchDirections, 1.0f, false);
+		if (GetActorLocation().Equals(Target, 1.0f)) {
+			GetWorldTimerManager().SetTimer(ReturnTimerHandle, this, &ATargetActor::SwitchDirections, 1.0f, false);
+		}
 	}
 }
 
@@ -92,4 +132,16 @@ void ATargetActor::RespawnTarget() {
 
 void ATargetActor::SwitchDirections() {
 	bReturning = !bReturning;
+}
+
+void ATargetActor::InitializeMovement(ETargetMovementPattern InPattern, float InSpeed, float InAmp, float InFreq) {
+	MovementPattern = InPattern;
+	PrimarySpeed = InSpeed;
+	SecondaryStrength = InAmp;
+	SecondaryFrequency = InFreq;
+
+	StartPosition = GetActorLocation();
+	StartTime = GetWorld()->GetTimeSeconds();
+
+	bInit = true;
 }
