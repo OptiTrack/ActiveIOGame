@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TargetActor.h"
+#include "TargetFormationSettings.h"
 #include "TargetFormation.generated.h"
 
 UCLASS()
@@ -15,7 +16,7 @@ class PROTOTYPE_CAPSTONE_API ATargetFormation : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATargetFormation();
-	void InitializeFormation(ETargetMovementPattern, TSubclassOf<class ATargetActor>, float, int32, float, float, float, float, bool);
+	void InitializeFormation(const FTargetFormationSettings& Settings);
 
 protected:
 	// Called when the game starts or when spawned
@@ -25,7 +26,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category = "Spawning")
+	/*UPROPERTY(EditAnywhere, Category = "Spawning")
 	TSubclassOf<class ATargetActor> TargetClass;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
@@ -50,7 +51,7 @@ public:
 	bool bDirectionPosY = true;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-	ETargetMovementPattern MovementPattern;
+	ETargetMovementPattern MovementPattern;*/
 
 private:
 
@@ -59,5 +60,7 @@ private:
 	int32 SpawnedCount = 0;
 
 	FTimerHandle SpawnTimerHandle;
+
+	FTargetFormationSettings FormationSettings;
 
 };

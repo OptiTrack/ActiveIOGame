@@ -5,6 +5,7 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 #include "InputCoreTypes.h"
+#include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
 // Sets default values
@@ -42,6 +43,8 @@ ATargetActor::ATargetActor()
 
 void ATargetActor::BeginPlay() {
 	Super::BeginPlay();
+	CurrentHealth = MaxHealth;
+	//legacy
 	StartLocation = GetActorLocation();
 	EndLocation = StartLocation;
 
@@ -58,7 +61,8 @@ void ATargetActor::BeginPlay() {
 // Called when the game starts or when spawned
 void ATargetActor::NotifyActorOnClicked(FKey ButtonPressed)
 {
-	Super::NotifyActorOnClicked(ButtonPressed);
+	if (ButtonPressed == EKeys::LeftMouseButton) UGameplayStatics::ApplyDamage(this, 1.0f, nullptr, nullptr, nullptr);
+	/*Super::NotifyActorOnClicked(ButtonPressed);
 
 	UE_LOG(LogTemp, Warning, TEXT("Target Was Clicked"));
 
@@ -71,7 +75,7 @@ void ATargetActor::NotifyActorOnClicked(FKey ButtonPressed)
 	SetActorEnableCollision(false);
 
 	UE_LOG(LogTemp, Warning, TEXT("Target Should Disappear"));
-	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ATargetActor::RespawnTarget, 5.0f, false);
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ATargetActor::RespawnTarget, 5.0f, false);*/
 
 	
 }
@@ -145,3 +149,15 @@ void ATargetActor::InitializeMovement(ETargetMovementPattern InPattern, float In
 
 	bInit = true;
 }
+
+float ATargetActor::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) {
+	CurrentHealth -= DamageAmount;
+	if (CurrentHealth <= 0.0f) OnDeath();
+	return DamageAmount;
+}
+
+void ATargetActor::OnDeath() {
+	Destroy();
+	return;
+}
+

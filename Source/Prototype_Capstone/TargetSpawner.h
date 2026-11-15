@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "TargetFormationSettings.h"
 #include "TargetSpawner.generated.h"
 
 UCLASS()
@@ -16,38 +17,13 @@ public:
 	ATargetSpawner();
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
-	TSubclassOf<class ATargetActor> TargetClass;
-
-	UPROPERTY(EditAnywhere, Category = "Spawning")
 	TSubclassOf<class ATargetFormation> TargetFormationClass;
 
-	UPROPERTY(EditAnywhere, Category = "Spawning")
-	int32 TargetCount = 5;
+	UPROPERTY(EditAnywhere, Category = "Formations")
+	TArray<FTargetFormationSettings> FormationSequence;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
-	float Interval = 0.8f;
-
-	UPROPERTY(EditAnywhere, Category = "Spawning")
-	bool bDirectionPosY = true;
-
-	UPROPERTY(EditAnywhere, Category = "Horizontal Sine")
-	FVector FormationASpawnLocation;
-
-	UPROPERTY(EditAnywhere, Category = "Horizontal Sine")
-	float FormationASpeed = 100.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Horizontal Sine")
-	float FormationASecondaryStrength = 50.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Descending Curve")
-	FVector FormationBSpawnLocation;
-
-	UPROPERTY(EditAnywhere, Category = "Descending Curve")
-	float FormationBSpeed = 200.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Descending Curve")
-	float FormationBSecondaryStrength = 50.0f;
-
+	bool bLoopSequence = true;
 
 protected:
 	// Called when the game starts or when spawned
@@ -56,5 +32,5 @@ protected:
 
 	FTimerHandle FormationTimerHandle;
 	void SpawnNextFormation();
-	bool bFormation;
+	int32 FormationIndex = 0;
 };

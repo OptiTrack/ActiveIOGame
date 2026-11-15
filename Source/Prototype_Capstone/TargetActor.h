@@ -24,6 +24,12 @@ public:
 	// Sets default values for this actor's properties
 	ATargetActor();
 	void InitializeMovement(ETargetMovementPattern, float, float, float);
+	virtual float TakeDamage(
+		float DamageAmount,
+		FDamageEvent const& DamageEvent,
+		AController* EventInstigator,
+		AActor* DamageCauser
+	) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -68,5 +74,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	ETargetMovementPattern MovementPattern = ETargetMovementPattern::HorizontalWave;
+
+	UPROPERTY(EditAnywhere, Category = "Health")
+	float MaxHealth = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	float CurrentHealth = 1.0f;
+
+	virtual void OnDeath();
 
 };

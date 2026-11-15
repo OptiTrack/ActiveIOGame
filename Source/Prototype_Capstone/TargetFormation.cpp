@@ -30,20 +30,20 @@ void ATargetFormation::Tick(float DeltaTime)
 }
 
 void ATargetFormation::SpawnNextTarget() {
-	if (SpawnedCount >= TargetCount) {
+	if (SpawnedCount >= FormationSettings.TargetCount) {
 		GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
 		Destroy();
 		return;
 	}
 
 	ATargetActor* NewTarget = GetWorld()->SpawnActor<ATargetActor>(
-		TargetClass,
+		FormationSettings.TargetClass,
 		GetActorLocation(),
 		GetActorRotation()
 	);
 
 	if (NewTarget) {
-		NewTarget->InitializeMovement(MovementPattern, bDirectionPosY ? PrimarySpeed : -PrimarySpeed, SecondaryStrength, SecondaryFrequency);
+		NewTarget->InitializeMovement(FormationSettings.MovementPattern, FormationSettings.bInvertY ? -FormationSettings.MovementSpeed : FormationSettings.MovementSpeed, FormationSettings.SecondaryStrength, FormationSettings.SecondaryFrequency);
 		SpawnedCount++;
 		UE_LOG(LogTemp, Log, TEXT("Formation spawned target %d"), SpawnedCount);
 	}
@@ -53,30 +53,22 @@ void ATargetFormation::SpawnNextTarget() {
 	}
 }
 
-void ATargetFormation::InitializeFormation(ETargetMovementPattern inPattern, TSubclassOf<class ATargetActor> inTarget, float inInterval, int32 inTargetCount, float inDuration, float inPSpeed, float inSStrength, float inSFreq, bool inbDir) {
-	MovementPattern = inPattern;
-	TargetClass = inTarget;
-	Interval = inInterval;
-	TargetCount = inTargetCount;
-	EstimatedDuration = inDuration;
-	PrimarySpeed = inPSpeed;
-	SecondaryStrength = inSStrength;
-	SecondaryFrequency = inSFreq;
-	bDirectionPosY = inbDir;
+void ATargetFormation::InitializeFormation(const FTargetFormationSettings& Settings) {
+	FormationSettings = Settings;
 
-	if (!TargetClass || TargetCount <= 0) {
+	if (!FormationSettings.TargetClass || FormationSettings.TargetCount <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("Settings for formation not set"));
 		return;
 	};
 
 	SpawnNextTarget();
 
-	if (SpawnedCount < TargetCount) {
+	if (SpawnedCount < FormationSettings.TargetCount) {
 		GetWorldTimerManager().SetTimer(
 			SpawnTimerHandle,
 			this,
 			&ATargetFormation::SpawnNextTarget,
-			Interval,
+			FormationSettings.Interval,
 			true
 		);
 	}

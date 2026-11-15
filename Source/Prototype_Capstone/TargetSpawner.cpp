@@ -33,35 +33,29 @@ void ATargetSpawner::Tick(float DeltaTime)
 
 void ATargetSpawner::SpawnNextFormation() {
 
-	FVector spawnPos = GetActorLocation() + (bFormation ? (bDirectionPosY ? FVector(0.0f, -300.0f, 0.0f) : FVector(0.0f, 300.0f, 0.0f)) : FVector(0.0f, 0.0f, 1200.0f - GetActorLocation().Z));
-	ATargetFormation* SpawnedTarget = GetWorld()->SpawnActor<ATargetFormation>(
+	if (FormationSequence.IsEmpty()) {
+		UE_LOG(LogTemp, Warning, TEXT("No formations configured"));
+		return;
+	}
+	const FTargetFormationSettings& CurrentSettings = FormationSequence[FormationIndex];
+	FVector spawnPos = GetActorLocation() + CurrentSettings.SpawnOffset;
+	ATargetFormation* SpawnedTargetFormation = GetWorld()->SpawnActor<ATargetFormation>(
 		TargetFormationClass,
 		spawnPos,
 		GetActorRotation()
 	);
-	if (SpawnedTarget) {
-		SpawnedTarget->InitializeFormation(
-			bFormation ? ETargetMovementPattern::HorizontalWave : ETargetMovementPattern::DescendingCurve,
-			TargetClass,
-			Interval,
-			TargetCount,
-			9.0f,
-			bFormation ? FormationASpeed : FormationBSpeed,
-			bFormation ? FormationASecondaryStrength : FormationBSecondaryStrength,
-			2.0,
-			bDirectionPosY
-		);
-	}
+	if (SpawnedTargetFormation) SpawnedTargetFormation->InitializeFormation(CurrentSettings);
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Formation spawning failed."));
 		return;
 	}
-	bFormation = !bFormation;
+	if (!bLoopSequence && FormationIndex+1 == FormationSequence.Num()) return;
+	else FormationIndex = (FormationIndex+1) % FormationSequence.Num();
 	GetWorldTimerManager().SetTimer(
 		FormationTimerHandle,
 		this,
 		&ATargetSpawner::SpawnNextFormation,
-		9.0f,
+		CurrentSettings.EstimatedDuration,
 		false
 	);
 }
