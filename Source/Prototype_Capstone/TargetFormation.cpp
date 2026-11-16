@@ -43,7 +43,7 @@ void ATargetFormation::SpawnNextTarget() {
 	);
 
 	if (NewTarget) {
-		NewTarget->InitializeMovement(FormationSettings.MovementPattern, FormationSettings.bInvertY ? -FormationSettings.MovementSpeed : FormationSettings.MovementSpeed, FormationSettings.SecondaryStrength, FormationSettings.SecondaryFrequency);
+		NewTarget->InitializeMovement(FormationSettings.MovementSettings);
 		SpawnedCount++;
 		UE_LOG(LogTemp, Log, TEXT("Formation spawned target %d"), SpawnedCount);
 	}

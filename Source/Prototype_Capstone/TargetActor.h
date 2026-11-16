@@ -12,7 +12,40 @@ UENUM(BlueprintType)
 enum class ETargetMovementPattern : uint8
 {
 	HorizontalWave UMETA(DisplayName = "Horizontal Wave"),
-	DescendingCurve UMETA(DisplayName = "Descending Curve")
+	DescendingCurve UMETA(DisplayName = "Descending Curve"),
+	Loner UMETA(DisplayName = "Enter, Wait, Exit")
+};
+
+USTRUCT(BlueprintType)
+struct PROTOTYPE_CAPSTONE_API FTargetMovementSettings {
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "Formation")
+	ETargetMovementPattern MovementPattern;
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Curves")
+	float MovementSpeed = 200.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Curves")
+	float SecondaryStrength = 50.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Curves")
+	float SecondaryFrequency = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	bool bInvertY = false;
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Enter Wait Exit")
+	float EntranceDuration = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Enter Wait Exit")
+	float WaitDuration = 5.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Enter Wait Exit")
+	float ExitDuration = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Enter Wait Exit")
+	FVector DestinationOffset = FVector(0.0f, 0.0f, -500.0f);
 };
 
 UCLASS()
@@ -23,7 +56,7 @@ class PROTOTYPE_CAPSTONE_API ATargetActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATargetActor();
-	void InitializeMovement(ETargetMovementPattern, float, float, float);
+	void InitializeMovement(FTargetMovementSettings);
 	virtual float TakeDamage(
 		float DamageAmount,
 		FDamageEvent const& DamageEvent,
@@ -34,11 +67,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	//legacy
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
-
-	void RespawnTarget();
 
 	void SwitchDirections();
 	FVector StartLocation;
@@ -56,9 +84,10 @@ protected:
 	FTimerHandle ReturnTimerHandle;
 	//end legacy
 
-	float PrimarySpeed = 200.0f;
-	float SecondaryStrength = 50.0f;
-	float SecondaryFrequency = 2.0f;
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	
 
 	float StartTime = 0.0f;
 
@@ -73,7 +102,7 @@ protected:
 	float MaxY = 800.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-	ETargetMovementPattern MovementPattern = ETargetMovementPattern::HorizontalWave;
+	FTargetMovementSettings MovementSettings;
 
 	UPROPERTY(EditAnywhere, Category = "Health")
 	float MaxHealth = 1.0f;

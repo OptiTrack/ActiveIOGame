@@ -26,33 +26,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	/*UPROPERTY(EditAnywhere, Category = "Spawning")
-	TSubclassOf<class ATargetActor> TargetClass;
-
-	UPROPERTY(EditAnywhere, Category = "Spawning")
-	float Interval = 0.8f;
-
-	UPROPERTY(EditAnywhere, Category = "Spawning")
-	int32 TargetCount = 5;
-
-	UPROPERTY(EditAnywhere, Category = "Spawning")
-	float EstimatedDuration = 9.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float PrimarySpeed = 200.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float SecondaryStrength = 50.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float SecondaryFrequency = 2.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	bool bDirectionPosY = true;
-
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	ETargetMovementPattern MovementPattern;*/
-
 private:
 
 	void SpawnNextTarget();

@@ -24,20 +24,16 @@ ATargetActor::ATargetActor()
 
 	TargetMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
+	TargetMesh->SetGenerateOverlapEvents(true);
+
 	UStaticMesh* LoadedMesh = LoadObject<UStaticMesh>(
 		nullptr,
 		TEXT("/Game/Target.Target")
 	);
 
-	if (LoadedMesh)
-	{
-		TargetMesh->SetStaticMesh(LoadedMesh);
-		UE_LOG(LogTemp, Warning, TEXT("Mesh loaded: %s"), *LoadedMesh->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("LoadObject failed to find Target!"));
-	}
+	if (LoadedMesh) TargetMesh->SetStaticMesh(LoadedMesh);
+	else UE_LOG(LogTemp, Error, TEXT("LoadObject failed to find Target!"));
+
 }
 
 
@@ -93,17 +89,37 @@ void ATargetActor::Tick(float DeltaTime)
 		float eTime = GetWorld()->GetTimeSeconds() - StartTime;
 		float NewY = StartPosition.Y;
 		float NewZ = StartPosition.Z;
-		switch (MovementPattern) {
+		FVector NewLocation(StartPosition.X, NewY, NewZ);
+		switch (MovementSettings.MovementPattern) {
 		case ETargetMovementPattern::HorizontalWave:
-			NewY += (PrimarySpeed * eTime);
-			NewZ += (SecondaryStrength * FMath::Sin(SecondaryFrequency * eTime));
+			NewY += (MovementSettings.MovementSpeed * eTime) * (MovementSettings.bInvertY ? -1 : 1);
+			NewZ += (MovementSettings.SecondaryStrength * FMath::Sin(MovementSettings.SecondaryFrequency * eTime));
+			NewLocation = FVector(StartPosition.X, NewY, NewZ);
 			break;
 		case ETargetMovementPattern::DescendingCurve:
-			NewY += (PrimarySpeed * eTime * eTime);
-			NewZ += -(SecondaryStrength * eTime);
+			NewY += (MovementSettings.MovementSpeed * eTime * eTime) * (MovementSettings.bInvertY ? -1 : 1);
+			NewZ += -(MovementSettings.SecondaryStrength * eTime);
+			NewLocation = FVector(StartPosition.X, NewY, NewZ);
+			break;
+		case ETargetMovementPattern::Loner:
+			const FVector DestinationPosition = StartPosition + MovementSettings.DestinationOffset;
+			const float ExitStartTime = MovementSettings.EntranceDuration + MovementSettings.WaitDuration;
+			const float TotalDuration = ExitStartTime + MovementSettings.ExitDuration;
+			if (eTime < MovementSettings.EntranceDuration) {
+				//entrance, stupid dumb piecewise
+				const float u = FMath::Clamp(eTime / MovementSettings.EntranceDuration, 0.0f, 1.0f);
+				const float eu = (1.0f - FMath::Cos(u * PI)) / 2.0f;
+				NewLocation = FMath::Lerp(StartPosition, DestinationPosition, eu);
+			}
+			else if (eTime < ExitStartTime) NewLocation = DestinationPosition;
+			else if (eTime < TotalDuration) {
+				const float u = FMath::Clamp((eTime - ExitStartTime) / MovementSettings.ExitDuration, 0.0f, 1.0f);
+				const float eu = (1.0f - FMath::Cos(u * PI)) / 2.0f;
+				NewLocation = FMath::Lerp(DestinationPosition, StartPosition, eu);
+			}
 			break;
 		}
-		FVector NewLocation(StartPosition.X, NewY, NewZ);
+		
 		if (NewY >= MaxY || NewY <= MinY) {
 			Destroy();
 			return;
@@ -111,8 +127,8 @@ void ATargetActor::Tick(float DeltaTime)
 		SetActorLocation(NewLocation);
 	}
 	else {
-		//helps if the targets in the level aren't broken
-		//idk why im attached to them
+		//legacy for the targets that were already in the level
+		//they dont respawn anymore though
 		if (GetWorldTimerManager().IsTimerActive(ReturnTimerHandle)) {
 			return;
 		}
@@ -126,24 +142,12 @@ void ATargetActor::Tick(float DeltaTime)
 	}
 }
 
-
-
-void ATargetActor::RespawnTarget() {
-	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
-}
-
-
 void ATargetActor::SwitchDirections() {
 	bReturning = !bReturning;
 }
 
-void ATargetActor::InitializeMovement(ETargetMovementPattern InPattern, float InSpeed, float InAmp, float InFreq) {
-	MovementPattern = InPattern;
-	PrimarySpeed = InSpeed;
-	SecondaryStrength = InAmp;
-	SecondaryFrequency = InFreq;
-
+void ATargetActor::InitializeMovement(FTargetMovementSettings inMSet) {
+	MovementSettings = inMSet;
 	StartPosition = GetActorLocation();
 	StartTime = GetWorld()->GetTimeSeconds();
 
