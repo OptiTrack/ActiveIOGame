@@ -36,4 +36,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Bullet")
 	float MinX = 100.0f;
 
+	/** Health the player loses when this bullet reaches them. */
+	UPROPERTY(EditAnywhere, Category = "Bullet")
+	float Damage = 1.0f;
+
 };
