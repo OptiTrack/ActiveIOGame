@@ -2,6 +2,8 @@
 
 
 #include "Bullet.h"
+#include "PrototypeGameModeBase.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -53,6 +55,11 @@ void ABullet::Tick(float DeltaTime)
 	SetActorLocation(GetActorLocation() + Velocity * DeltaTime);
 	if (GetActorLocation().X < MinX) {
 		UE_LOG(LogTemp, Warning, TEXT("Bullet hit the player."));
+		if (APrototypeGameModeBase* GameMode = GetWorld()->GetAuthGameMode<APrototypeGameModeBase>())
+		{
+			GameMode->DamagePlayer(Damage);
+		}
+		Destroy();
 		return;
 	}
 }
