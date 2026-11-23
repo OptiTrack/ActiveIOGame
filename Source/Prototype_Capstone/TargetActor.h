@@ -6,7 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
+#include "Sound/SoundBase.h"
 #include "TargetActor.generated.h"
+
 
 UENUM(BlueprintType)
 enum class ETargetMovementPattern : uint8
@@ -79,7 +81,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Target")
 	bool bMovesVertical = false;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundBase* KillSound;
+
+
 	UStaticMeshComponent* TargetMesh;
+
 	FTimerHandle RespawnTimerHandle;
 	FTimerHandle ReturnTimerHandle;
 	//end legacy

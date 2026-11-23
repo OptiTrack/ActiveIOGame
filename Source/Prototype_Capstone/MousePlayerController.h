@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Sound/SoundBase.h"
 #include "MousePlayerController.generated.h"
 
 /**
@@ -19,4 +20,9 @@ public:
 
 	virtual void PlayerTick(float DeltaTime) override;
 	
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundBase* LaserSound;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundBase* BGMusic;
 };
