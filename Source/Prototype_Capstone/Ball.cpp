@@ -50,8 +50,7 @@ void ABall::Tick(float DeltaTime)
 
 }
 
-void ABall::NotifyActorOnClicked(FKey ButtonPressed) {
-	if (ButtonPressed != EKeys::LeftMouseButton) return;
+void ABall::OnShot_Implementation() {
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC) return;
 	FHitResult HitResult;

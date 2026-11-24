@@ -57,7 +57,7 @@ void ABullet::Tick(float DeltaTime)
 	}
 }
 
-void ABullet::NotifyActorOnClicked(FKey ButtonPressed)
+void ABullet::OnShot_Implementation()
 {
-	if (ButtonPressed == EKeys::LeftMouseButton) Destroy();
+	Destroy();
 }
