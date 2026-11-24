@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
+#include "Shootable.h"
 #include "Ball.generated.h"
 
 UCLASS()
-class PROTOTYPE_CAPSTONE_API ABall : public AActor
+class PROTOTYPE_CAPSTONE_API ABall : public AActor, public IShootable
 {
 	GENERATED_BODY()
 	
@@ -32,11 +33,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	//virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void OnShot_Implementation() override;
 
 	UFUNCTION()
 	void OnBallOverlap(

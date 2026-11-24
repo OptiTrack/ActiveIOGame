@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Shootable.h"
 #include "Bullet.generated.h"
 
 UCLASS()
-class PROTOTYPE_CAPSTONE_API ABullet : public AActor
+class PROTOTYPE_CAPSTONE_API ABullet : public AActor, public IShootable
 {
 	GENERATED_BODY()
 	
@@ -21,11 +22,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void NotifyActorOnClicked(FKey) override;
+	//virtual void NotifyActorOnClicked(FKey) override;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void OnShot_Implementation();
 
 	UPROPERTY(EditAnywhere, Category = "Bullet")
 	float MovementSpeed = 50.0f;

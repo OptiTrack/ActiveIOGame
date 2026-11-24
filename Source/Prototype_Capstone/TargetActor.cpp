@@ -59,14 +59,9 @@ void ATargetActor::BeginPlay() {
 
 
 // Called when the game starts or when spawned
-void ATargetActor::NotifyActorOnClicked(FKey ButtonPressed)
+/*void ATargetActor::NotifyActorOnClicked(FKey ButtonPressed)
 {
-	if (ButtonPressed == EKeys::LeftMouseButton) {
-		if (KillSound) {
-			UGameplayStatics::PlaySoundAtLocation(this, KillSound, GetActorLocation());
-		}
-		UGameplayStatics::ApplyDamage(this, 1.0f, nullptr, nullptr, nullptr);
-	}
+	if (ButtonPressed == EKeys::LeftMouseButton) UGameplayStatics::ApplyDamage(this, 1.0f, nullptr, nullptr, nullptr);
 	/*Super::NotifyActorOnClicked(ButtonPressed);
 
 	UE_LOG(LogTemp, Warning, TEXT("Target Was Clicked"));
@@ -80,9 +75,16 @@ void ATargetActor::NotifyActorOnClicked(FKey ButtonPressed)
 	SetActorEnableCollision(false);
 
 	UE_LOG(LogTemp, Warning, TEXT("Target Should Disappear"));
-	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ATargetActor::RespawnTarget, 5.0f, false);*/
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ATargetActor::RespawnTarget, 5.0f, false);
 
+	
+}*/
 
+void ATargetActor::OnShot_Implementation() {
+	if (KillSound) {
+		UGameplayStatics::PlaySoundAtLocation(this, KillSound, GetActorLocation());
+	}
+	UGameplayStatics::ApplyDamage(this, 1.0f, nullptr, nullptr, nullptr);
 }
 
 //Called every frame

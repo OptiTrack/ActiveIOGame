@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
 #include "Sound/SoundBase.h"
+#include "Shootable.h"
 #include "TargetActor.generated.h"
 
 
@@ -51,7 +52,7 @@ struct PROTOTYPE_CAPSTONE_API FTargetMovementSettings {
 };
 
 UCLASS()
-class PROTOTYPE_CAPSTONE_API ATargetActor : public AActor
+class PROTOTYPE_CAPSTONE_API ATargetActor : public AActor, public IShootable
 {
 	GENERATED_BODY()
 	
@@ -93,7 +94,8 @@ protected:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	//virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	virtual void OnShot_Implementation();
 	
 
 	float StartTime = 0.0f;
