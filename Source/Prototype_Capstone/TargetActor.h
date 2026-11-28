@@ -6,7 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
+#include "Sound/SoundBase.h"
+#include "Shootable.h"
 #include "TargetActor.generated.h"
+
 
 UENUM(BlueprintType)
 enum class ETargetMovementPattern : uint8
@@ -50,7 +53,7 @@ struct PROTOTYPE_CAPSTONE_API FTargetMovementSettings {
 };
 
 UCLASS()
-class PROTOTYPE_CAPSTONE_API ATargetActor : public AActor
+class PROTOTYPE_CAPSTONE_API ATargetActor : public AActor, public IShootable
 {
 	GENERATED_BODY()
 	
@@ -80,14 +83,20 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Target")
 	bool bMovesVertical = false;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundBase* KillSound;
+
+
 	UStaticMeshComponent* TargetMesh;
+
 	FTimerHandle RespawnTimerHandle;
 	FTimerHandle ReturnTimerHandle;
 	//end legacy
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	//virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+	virtual void OnShot_Implementation();
 	
 
 	float StartTime = 0.0f;
