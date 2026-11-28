@@ -8,6 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Materials/MaterialInterface.h"
+#include "GameFramework/PlayerController.h"
 
 // Sets default values
 ATargetActor::ATargetActor()
@@ -37,6 +39,10 @@ ATargetActor::ATargetActor()
 
 	KillSound = LoadObject<USoundBase>(
 		nullptr, TEXT("/Game/Audio/freesound_community-small-explosion-103779.freesound_community-small-explosion-103779")
+	);
+
+	HitFlashMaterial = LoadObject<UMaterialInterface>(
+		nullptr, TEXT("/Game/M_HitFlash.M_HitFlash")
 	);
 }
 
@@ -143,6 +149,13 @@ void ATargetActor::Tick(float DeltaTime)
 			Destroy();
 			return;
 		}
+
+		const float TimeSinceHit = GetWorld()->GetTimeSeconds() - LastHitTime;
+		if (KnockbackDuration > 0.0f && TimeSinceHit < KnockbackDuration) {
+			const float Alpha = FMath::Sin((TimeSinceHit / KnockbackDuration) * PI);
+			NewLocation += KnockbackDirection * KnockbackDistance * Alpha;
+		}
+
 		SetActorLocation(NewLocation);
 	}
 	else {
@@ -177,10 +190,39 @@ void ATargetActor::InitializeMovement(FTargetMovementSettings inMSet) {
 float ATargetActor::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) {
 	CurrentHealth -= DamageAmount;
 	if (CurrentHealth <= 0.0f) OnDeath();
+	else OnHit();
 	return DamageAmount;
 }
 
 void ATargetActor::OnDeath() {
 	Destroy();
 	return;
+}
+
+void ATargetActor::OnHit() {
+	if (HitFlashMaterial) {
+		if (!GetWorldTimerManager().IsTimerActive(HitFlashTimerHandle)) {
+			OriginalMaterials.Reset();
+			for (int32 i = 0; i < TargetMesh->GetNumMaterials(); i++) {
+				OriginalMaterials.Add(TargetMesh->GetMaterial(i));
+				TargetMesh->SetMaterial(i, HitFlashMaterial);
+			}
+		}
+		GetWorldTimerManager().SetTimer(HitFlashTimerHandle, this, &ATargetActor::ClearHitFlash, HitFlashDuration, false);
+	}
+
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController()) {
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
+		KnockbackDirection = (GetActorLocation() - CameraLocation).GetSafeNormal();
+	}
+	LastHitTime = GetWorld()->GetTimeSeconds();
+}
+
+void ATargetActor::ClearHitFlash() {
+	for (int32 i = 0; i < OriginalMaterials.Num(); i++) {
+		TargetMesh->SetMaterial(i, OriginalMaterials[i]);
+	}
+	OriginalMaterials.Reset();
 }

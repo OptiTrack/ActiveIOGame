@@ -124,4 +124,25 @@ protected:
 
 	virtual void OnDeath();
 
+	virtual void OnHit();
+	void ClearHitFlash();
+
+	UPROPERTY(EditAnywhere, Category = "Hit Feedback")
+	class UMaterialInterface* HitFlashMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Hit Feedback")
+	float HitFlashDuration = 0.15f;
+
+	UPROPERTY(EditAnywhere, Category = "Hit Feedback")
+	float KnockbackDistance = 60.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Hit Feedback")
+	float KnockbackDuration = 0.3f;
+
+	FTimerHandle HitFlashTimerHandle;
+	float LastHitTime = -1000.0f;
+	FVector KnockbackDirection = FVector::ZeroVector;
+
+	UPROPERTY()
+	TArray<UMaterialInterface*> OriginalMaterials;
 };
