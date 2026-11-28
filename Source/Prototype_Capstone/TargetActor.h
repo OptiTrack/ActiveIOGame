@@ -16,7 +16,8 @@ enum class ETargetMovementPattern : uint8
 {
 	HorizontalWave UMETA(DisplayName = "Horizontal Wave"),
 	DescendingCurve UMETA(DisplayName = "Descending Curve"),
-	Loner UMETA(DisplayName = "Enter, Wait, Exit")
+	Loner UMETA(DisplayName = "Enter, Wait, Exit"),
+	NoiseWander UMETA(DisplayName = "Noise Wander")
 };
 
 USTRUCT(BlueprintType)
@@ -103,6 +104,8 @@ protected:
 	FVector StartPosition = FVector::ZeroVector;
 
 	bool bInit = false;
+
+	float NoiseSeed = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float MinY = -800.0f;

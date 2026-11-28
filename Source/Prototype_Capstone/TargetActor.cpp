@@ -112,6 +112,14 @@ void ATargetActor::Tick(float DeltaTime)
 			NewZ += -(MovementSettings.SecondaryStrength * eTime);
 			NewLocation = FVector(StartPosition.X, NewY, NewZ);
 			break;
+		case ETargetMovementPattern::NoiseWander:
+		{
+			NewY += (MovementSettings.MovementSpeed * eTime) * (MovementSettings.bInvertY ? -1 : 1);
+			const float NoiseInput = (eTime * MovementSettings.SecondaryFrequency) + NoiseSeed;
+			NewZ += MovementSettings.SecondaryStrength * FMath::PerlinNoise1D(NoiseInput);
+			NewLocation = FVector(StartPosition.X, NewY, NewZ);
+			break;
+		}
 		case ETargetMovementPattern::Loner:
 			const FVector DestinationPosition = StartPosition + MovementSettings.DestinationOffset;
 			const float ExitStartTime = MovementSettings.EntranceDuration + MovementSettings.WaitDuration;
@@ -161,6 +169,7 @@ void ATargetActor::InitializeMovement(FTargetMovementSettings inMSet) {
 	MovementSettings = inMSet;
 	StartPosition = GetActorLocation();
 	StartTime = GetWorld()->GetTimeSeconds();
+	NoiseSeed = FMath::FRandRange(0.0f, 1000.0f);
 
 	bInit = true;
 }
