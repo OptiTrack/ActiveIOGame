@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "InputCoreTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 #include "UObject/ConstructorHelpers.h"
 
 // Sets default values
@@ -34,6 +35,9 @@ ATargetActor::ATargetActor()
 	if (LoadedMesh) TargetMesh->SetStaticMesh(LoadedMesh);
 	else UE_LOG(LogTemp, Error, TEXT("LoadObject failed to find Target!"));
 
+	KillSound = LoadObject<USoundBase>(
+		nullptr, TEXT("/Game/Audio/freesound_community-small-explosion-103779.freesound_community-small-explosion-103779")
+	);
 }
 
 
@@ -57,7 +61,12 @@ void ATargetActor::BeginPlay() {
 // Called when the game starts or when spawned
 void ATargetActor::NotifyActorOnClicked(FKey ButtonPressed)
 {
-	if (ButtonPressed == EKeys::LeftMouseButton) UGameplayStatics::ApplyDamage(this, 1.0f, nullptr, nullptr, nullptr);
+	if (ButtonPressed == EKeys::LeftMouseButton) {
+		if (KillSound) {
+			UGameplayStatics::PlaySoundAtLocation(this, KillSound, GetActorLocation());
+		}
+		UGameplayStatics::ApplyDamage(this, 1.0f, nullptr, nullptr, nullptr);
+	}
 	/*Super::NotifyActorOnClicked(ButtonPressed);
 
 	UE_LOG(LogTemp, Warning, TEXT("Target Was Clicked"));
@@ -73,10 +82,10 @@ void ATargetActor::NotifyActorOnClicked(FKey ButtonPressed)
 	UE_LOG(LogTemp, Warning, TEXT("Target Should Disappear"));
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ATargetActor::RespawnTarget, 5.0f, false);*/
 
-	
+
 }
 
- //Called every frame
+//Called every frame
 void ATargetActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -119,7 +128,7 @@ void ATargetActor::Tick(float DeltaTime)
 			}
 			break;
 		}
-		
+
 		if (NewY >= MaxY || NewY <= MinY) {
 			Destroy();
 			return;
@@ -164,4 +173,3 @@ void ATargetActor::OnDeath() {
 	Destroy();
 	return;
 }
-
